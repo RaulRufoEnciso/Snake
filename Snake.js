@@ -12,6 +12,12 @@ class Game {
 	 * @param {number} amount -  nombre de quadrats per fila de la quadrícula
 	 */
 	constructor(width,height,amount) {
+		//esto es lo primero que se llama
+		this.width = width;
+		this.height = height;
+		this.amount = amount;
+		this.start();
+		this.initCanvas(width, height)
 	}
 
 	/**
@@ -20,7 +26,18 @@ class Game {
 	 * @param {number} width -  width del canvas
 	 * @param {number} height -  height del canvas
 	 */
+	
 	initCanvas(width, height) {
+
+		let canvas = document.createElement("canvas");
+		canvas.width = width;
+		canvas.height = height;
+
+		document.getElementsByTagName("body")[0].appendChild(canvas)
+
+		this.context = canvas.getContext("2d");
+
+	
 	}
 
 	/**
@@ -28,6 +45,10 @@ class Game {
 	 * Serp al centre, direcció cap a la dreta, puntuació 0
 	 */
 	start() {
+		this.puntuacio = 0;
+		this.serp = [[0,0]];
+		this.dir = [1,0];
+		
 	}
 
 	/**
@@ -37,18 +58,29 @@ class Game {
 	 * @param {string} color -  color del quadrat
 	 */
 	drawSquare(x,y,color) {
+		let mida = this.width/this.amount;
+		this.context.beginPath();
+		this.context.fillStyle=color;
+		this.context.fillRect(mida*y,mida*x, mida, mida);
+		this.context.stroke();
+
 	}
 
 	/**
 	 * Neteja el canvas (pinta'l de blanc)
 	 */
 	clear() {
+		this.context.beginPath();
+		this.context.fillStyle="#FFFFFF";
+		this.context.fillRect(0, 0, this.height, this.width);
+		this.context.stroke();
 	}
 
 	/**
 	 * Dibuixa la serp al canvas
 	 */
 	drawSnake() {
+		this.drawSquare(this.serp[0][0],this.serp[0][1],"red")
 	}
 
 	/**
@@ -77,6 +109,15 @@ class Game {
 	 * @return {Array} - nova posició
 	 */
 	newTile() {
+		let result = [0,0];
+
+		let x = (this.serp[0][0] + this.dir[0]);
+		let y = (this.serp[0][1] + this.dir[1]);
+		result[0] = x % this.amount;
+		result[1] = y % this.amount;
+		if (x < 0) result[0] = this.amount+x;
+		if (y < 0) result[1] = this.amount+y;
+		return result;
 	}
 
 	/**
@@ -84,16 +125,39 @@ class Game {
 	 * i ho dibuixa al canvas
 	 */
 	step() {
+		this.clear();
+		let novaSerp = this.newTile();
+		this.serp[0] = novaSerp;
+		this.drawSnake();
 	}
 
 	/**
 	 * Actualitza la direcció de la serp a partir de l'event (tecla dreta, esquerra, amunt, avall)
 	 * @param {event} e - l'event de la tecla premuda
 	 */
+	
+	//	Arriba		- 38
+	//	Abajo		- 40
+	//	Izquierda	- 37
+	//	Derecha		- 39
 	input(e) {
+		e = e || window.event;
+		this.dir = game.direction;
+		if (e.keyCode == '37'){
+			this.dir = [0,-1];
+		}
+		else if (e.keyCode == '39'){
+			this.dir = [0,1];
+		}
+		else if (e.keyCode == '38'){
+			this.dir = [-1,0];
+		}
+		else if (e.keyCode == '40'){
+			this.dir =[1,0]
+		}
 	}
 }
 
-let game = new Game(300,300,15); // Crea un nou joc
+let game = new Game(3500,3500,150); // Crea un nou joc
 document.onkeydown = game.input.bind(game); // Assigna l'event de les tecles a la funció input del nostre joc
 window.setInterval(game.step.bind(game),100); // Fes que la funció que actualitza el nostre joc s'executi cada 100ms
