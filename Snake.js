@@ -48,6 +48,7 @@ class Game {
 		this.puntuacio = 0;
 		this.serp = [[0,0]];
 		this.dir = [1,0];
+		this.addFood();
 		
 	}
 
@@ -80,13 +81,19 @@ class Game {
 	 * Dibuixa la serp al canvas
 	 */
 	drawSnake() {
-		this.drawSquare(this.serp[0][0],this.serp[0][1],"red")
+		//this.drawSquare(this.serp[0][0],this.serp[0][1],"red")
+		
+		for(let i=0; i< this.serp.length; i++){
+			this.drawSquare(this.serp[i][0],this.serp[i][1],"red")
+		}
+		
 	}
 
 	/**
 	 * Dibuixa la poma al canvas
 	 */
 	drawFood() {
+		this.drawSquare(this.menja[0],this.menja[1],"green")
 	}
 
 	/**
@@ -96,12 +103,24 @@ class Game {
 	 * @return {boolean} - xoca o no
 	 */
 	collides(x,y) {
+		//this.serp[i] // [0,0]
+		for (let i = 0; i < this.serp.length; i++) {
+			if(this.serp[i][0]==x  && this.serp[i][1]==y){
+				return true;
+			}
+			
+		}
+		return false;
 	}
 
 	/**
 	 * Afegeix un menjar a una posició aleatòria, la posició no ha de ser cap de les de la serp
 	 */
 	addFood() {
+		let i = parseInt(Math.random()*this.amount);
+		let j = parseInt(Math.random()*this.amount);
+		this.menja = [i,j];
+		
 	}
 
 	/**
@@ -111,8 +130,8 @@ class Game {
 	newTile() {
 		let result = [0,0];
 
-		let x = (this.serp[0][0] + this.dir[0]);
-		let y = (this.serp[0][1] + this.dir[1]);
+		let x = (this.serp[this.serp.length-1][0] + this.dir[0]);
+		let y = (this.serp[this.serp.length-1][1] + this.dir[1]);
 		result[0] = x % this.amount;
 		result[1] = y % this.amount;
 		if (x < 0) result[0] = this.amount+x;
@@ -127,8 +146,19 @@ class Game {
 	step() {
 		this.clear();
 		let novaSerp = this.newTile();
-		this.serp[0] = novaSerp;
+		if(this.collides(novaSerp[0],novaSerp[1])){
+			this.start();
+		}else {
+			this.serp.push(novaSerp);
+			if (novaSerp[0] == this.menja[0] && novaSerp[1] == this.menja[1]) {
+				this.addFood();
+	
+			}else{
+				this.serp.shift();
+			}
+		}
 		this.drawSnake();
+		this.drawFood();
 	}
 
 	/**
@@ -158,6 +188,6 @@ class Game {
 	}
 }
 
-let game = new Game(3500,3500,150); // Crea un nou joc
+let game = new Game(600,600,20); // Crea un nou joc
 document.onkeydown = game.input.bind(game); // Assigna l'event de les tecles a la funció input del nostre joc
 window.setInterval(game.step.bind(game),100); // Fes que la funció que actualitza el nostre joc s'executi cada 100ms
