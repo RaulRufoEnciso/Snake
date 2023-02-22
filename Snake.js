@@ -103,7 +103,6 @@ class Game {
 	 * @return {boolean} - xoca o no
 	 */
 	collides(x,y) {
-		//this.serp[i] // [0,0]
 		for (let i = 0; i < this.serp.length; i++) {
 			if(this.serp[i][0]==x  && this.serp[i][1]==y){
 				return true;
@@ -172,18 +171,21 @@ class Game {
 	//	Derecha		- 39
 	input(e) {
 		e = e || window.event;
-		this.dir = game.direction;
+		let nueva;
 		if (e.keyCode == '37'){
-			this.dir = [0,-1];
+			nueva = [0,-1];
 		}
 		else if (e.keyCode == '39'){
-			this.dir = [0,1];
+			nueva = [0,1];
 		}
 		else if (e.keyCode == '38'){
-			this.dir = [-1,0];
+			nueva = [-1,0];
 		}
 		else if (e.keyCode == '40'){
-			this.dir =[1,0]
+			nueva =[1,0]
+		}
+		if ((this.dir[0]+nueva[0]) != 0 && (this.dir[1]+nueva[1]) != 0) {
+			this.dir = nueva;
 		}
 	}
 }
